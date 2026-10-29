@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Secrets (API keys go in .env, never in git)
+.env
+
+# Benchmark outputs get large; we keep the folder but not its contents
+results/*
+!results/.gitkeep
+
+# Tamarin and editor clutter
+*.spthy.bak
+.vscode/
+.idea/
