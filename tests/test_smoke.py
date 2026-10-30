@@ -19,3 +19,7 @@ def test_banking_suite_loads():
     suite = get_suite("v1.2.2", "banking")
     assert len(suite.user_tasks) == 16
     assert len(suite.injection_tasks) == 9
+
+def test_banking_suite_has_11_tools():
+    suite = get_suite("v1.2.2", "banking")
+    assert len(suite.tools) == 11
