@@ -13,6 +13,16 @@ Requires [uv](https://docs.astral.sh/uv/).
     uv sync
     uv run pytest
 
+## Contents
+
+- `tamarin/`: the Tamarin models and the script that checks them.
+- `templates/`: the template list and the label of every AgentDojo user task.
+- `src/poia_agents/coverage.py`: the coverage of the tasks by the templates.
+
+To reproduce the coverage table:
+
+    uv run python -m poia_agents.coverage
+
 ## AgentDojo
 
 AgentDojo is used unmodified, as a pinned dependency (`agentdojo==0.1.35`). It is MIT-licensed:

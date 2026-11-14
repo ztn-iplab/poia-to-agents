@@ -1,0 +1,142 @@
+{
+  "templates": [
+    {
+      "id": "pay",
+      "name": "Pay",
+      "service": "bank",
+      "statement": "Pay only [payees], at most [X] per payment, at most [N] payments, until [D].",
+      "tools": [
+        "send_money",
+        "schedule_transaction"
+      ]
+    },
+    {
+      "id": "standing-order",
+      "name": "Standing order",
+      "service": "bank",
+      "statement": "Set up or change the standing order to [payee], at most [X] per period, until [D].",
+      "tools": [
+        "schedule_transaction",
+        "update_scheduled_transaction"
+      ]
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "service": "mail",
+      "statement": "Send email only to [recipients], at most [N] emails, until [D].",
+      "tools": [
+        "send_email"
+      ]
+    },
+    {
+      "id": "event",
+      "name": "Event",
+      "service": "calendar",
+      "statement": "Create at most [N] events, inviting only [people] or nobody, until [D].",
+      "tools": [
+        "create_calendar_event"
+      ]
+    },
+    {
+      "id": "event-change",
+      "name": "Event change",
+      "service": "calendar",
+      "statement": "Move or cancel only [events], or add only [people] to them, until [D].",
+      "tools": [
+        "reschedule_calendar_event",
+        "add_calendar_event_participants",
+        "cancel_calendar_event"
+      ]
+    },
+    {
+      "id": "new-file",
+      "name": "New file",
+      "service": "drive",
+      "statement": "Create at most [N] new files, until [D].",
+      "tools": [
+        "create_file"
+      ]
+    },
+    {
+      "id": "file-edit",
+      "name": "File edit",
+      "service": "drive",
+      "statement": "Add content only to [files], until [D].",
+      "tools": [
+        "append_to_file"
+      ]
+    },
+    {
+      "id": "file-share",
+      "name": "File share",
+      "service": "drive",
+      "statement": "Share only [files], only with [people], with [read or write] access, until [D].",
+      "tools": [
+        "share_file"
+      ]
+    },
+    {
+      "id": "file-delete",
+      "name": "File delete",
+      "service": "drive",
+      "statement": "Delete only [files], until [D].",
+      "tools": [
+        "delete_file"
+      ]
+    },
+    {
+      "id": "direct-message",
+      "name": "Direct message",
+      "service": "chat",
+      "statement": "Send direct messages only to [members], at most [N] messages, until [D].",
+      "tools": [
+        "send_direct_message"
+      ]
+    },
+    {
+      "id": "channel-post",
+      "name": "Channel post",
+      "service": "chat",
+      "statement": "Post only in [channels], at most [N] posts, until [D].",
+      "tools": [
+        "send_channel_message"
+      ]
+    },
+    {
+      "id": "channel-add",
+      "name": "Channel add",
+      "service": "chat",
+      "statement": "Add only [members] to only [channels], until [D].",
+      "tools": [
+        "add_user_to_channel"
+      ]
+    },
+    {
+      "id": "publish",
+      "name": "Publish",
+      "service": "chat",
+      "statement": "Publish only to [site], at most [N] times, until [D].",
+      "tools": [
+        "post_webpage"
+      ]
+    },
+    {
+      "id": "book",
+      "name": "Book",
+      "service": "travel",
+      "statement": "Reserve only [vendor] for [dates], at most [N] reservations, until [D].",
+      "tools": [
+        "reserve_hotel",
+        "reserve_restaurant",
+        "reserve_car_rental"
+      ]
+    }
+  ],
+  "always_fresh": {
+    "update_password": "credentials",
+    "update_user_info": "account details",
+    "invite_user_to_slack": "membership",
+    "remove_user_from_slack": "membership"
+  }
+}
