@@ -1,0 +1,175 @@
+/*
+ * RQ3: the user signs a template published by the service; the service
+ * checks every operation against it (conditions C1 to C6).
+ *
+ * Attackers: the agent signs any operation the attacker chooses
+ * (Agent_Signs_Operation), and the agent's key can be revealed
+ * (Reveal_Agent_Key). The network is under attacker control.
+ *
+ * Abstractions: an amount is 'within' or 'over' the template's limit;
+ * an operation is 'routine' or 'fresh' (needs a fresh user approval);
+ * the count is a natural number; expiry is an event at the service.
+ *
+ * Each condition is one restriction. With no flag, all lemmas are verified.
+ * A flag removes one condition, for example:
+ *   tamarin-prover --prove -D=without_c6 signed_template.spthy
+ * README.md lists every flag and the lemma it falsifies.
+ */
+
+theory SignedTemplate
+begin
+
+builtins: signing, natural-numbers
+
+#ifdef not without_c1
+restriction C1_UserSignatureOnTemplate:
+  "All v #i. UserSignatureCheck(v) @ #i ==> v = true"
+#endif
+
+#ifdef not without_c1_stored_once
+restriction C1_TemplateStoredOnce:
+  "All tid #i #j. Stored(tid) @ #i & Stored(tid) @ #j ==> #i = #j"
+#endif
+
+#ifdef not without_c2
+restriction C2_AgentSignatureOnOperation:
+  "All v #i. AgentSignatureCheck(v) @ #i ==> v = true"
+#endif
+
+#ifdef not without_c2_template_id
+restriction C2_OperationNamesItsTemplate:
+  "All tid signed #i. TemplateNameCheck(tid, signed) @ #i ==> tid = signed"
+#endif
+
+#ifdef not without_c3
+restriction C3_OperationNumberUsedOnce:
+  "All tid opnum #i #j. Used(tid, opnum) @ #i & Used(tid, opnum) @ #j ==> #i = #j"
+#endif
+
+#ifdef not without_c4_scope
+restriction C4_ScopeFitsTemplate:
+  "All scope allowed #i. ScopeCheck(scope, allowed) @ #i ==> scope = allowed"
+#endif
+
+#ifdef not without_c4_amount
+restriction C4_AmountWithinLimit:
+  "All amount #i. AmountCheck(amount) @ #i ==> amount = 'within'"
+#endif
+
+#ifdef not without_c4_expiry
+restriction C4_NotExpired:
+  "All tid #i #j. ExpiryCheck(tid) @ #i & Expired(tid) @ #j ==> #i < #j"
+#endif
+
+#ifdef not without_c5
+restriction C5_CountWithinLimit:
+  "All c n #i. CountCheck(c, n) @ #i ==> (c = n | c << n)"
+#endif
+
+#ifdef not without_c6
+restriction C6_NotFreshApprovalClass:
+  "All kind #i. KindCheck(kind) @ #i ==> kind = 'routine'"
+#endif
+
+rule Register_User:
+  [ Fr(~skU) ]
+  --[ RegisterUser($U) ]->
+  [ !UserKey($U, ~skU), !UserPk($U, pk(~skU)), Out(pk(~skU)) ]
+
+rule Register_Agent:
+  [ Fr(~skA) ]
+  --[ RegisterAgent($A) ]->
+  [ !AgentKey($A, ~skA), !AgentPk($A, pk(~skA)), Out(pk(~skA)) ]
+
+rule Reveal_Agent_Key:
+  [ !AgentKey($A, ~skA) ]
+  --[ RevealAgent($A) ]->
+  [ Out(~skA) ]
+
+rule User_Signs_Template:
+  let tmpl = <'template', ~tid, $U, pkA, $scope, %n>
+  in
+  [ Fr(~tid), In(%n), !UserKey($U, ~skU), !AgentPk($A, pkA) ]
+  --[ SignedTemplate($U, ~tid, $A, $scope, %n) ]->
+  [ Out(<tmpl, sign(tmpl, ~skU)>) ]
+
+rule Service_Stores_Template:
+  let tmpl = <'template', tid, $U, pkA, $scope, %n>
+  in
+  [ In(<tmpl, sigU>), !UserPk($U, pkU) ]
+  --[ UserSignatureCheck(verify(sigU, tmpl, pkU)),
+      Stored(tid) ]->
+  [ !Template(tid, $U, pkA, $scope, %n), Count(tid, %1) ]
+
+rule Agent_Signs_Operation:
+  let op = <'operation', tid, kind, scope, amount, opnum>
+  in
+  [ In(op), !AgentKey($A, ~skA) ]
+  --[ AgentSigned($A, tid, kind, scope, amount, opnum) ]->
+  [ Out(sign(op, ~skA)) ]
+
+rule Service_Executes:
+  let op = <'operation', signed, kind, scope, amount, opnum>
+  in
+  [ In(<tid, op, sigA>), !Template(tid, U, pkA, allowed, %n), Count(tid, %c) ]
+  --[ AgentSignatureCheck(verify(sigA, op, pkA)),
+      TemplateNameCheck(tid, signed),
+      Used(tid, opnum),
+      ScopeCheck(scope, allowed),
+      AmountCheck(amount),
+      ExpiryCheck(tid),
+      CountCheck(%c, %n),
+      KindCheck(kind),
+      Executed(U, tid, kind, scope, amount, opnum),
+      Counted(tid, %c) ]->
+  [ Count(tid, %c %+ %1) ]
+
+rule Template_Expires:
+  [ !Template(tid, U, pkA, allowed, %n) ]
+  --[ Expired(tid) ]->
+  [ ]
+
+lemma executable:
+  exists-trace
+  "Ex U tid kind scope amount opnum1 opnum2 #i #j.
+     Executed(U, tid, kind, scope, amount, opnum1) @ #i
+   & Executed(U, tid, kind, scope, amount, opnum2) @ #j
+   & #i < #j"
+
+lemma executable_with_revealed_key:
+  exists-trace
+  "Ex U tid kind scope amount opnum A n #i #j #r.
+     SignedTemplate(U, tid, A, scope, n) @ #j
+   & RevealAgent(A) @ #r
+   & Executed(U, tid, kind, scope, amount, opnum) @ #i
+   & not (Ex B #k. AgentSigned(B, tid, kind, scope, amount, opnum) @ #k)"
+
+lemma confinement:
+  "All U tid kind scope amount opnum #i.
+     Executed(U, tid, kind, scope, amount, opnum) @ #i
+     ==> (Ex A n #j. SignedTemplate(U, tid, A, scope, n) @ #j & #j < #i)
+       & kind = 'routine'
+       & amount = 'within'
+       & not (Ex #e. Expired(tid) @ #e & #e < #i)"
+
+lemma count_not_exceeded:
+  "All tid c #i. Counted(tid, c) @ #i
+     ==> (Ex U A scope n #j. SignedTemplate(U, tid, A, scope, n) @ #j
+            & #j < #i & (c = n | c << n))"
+
+lemma count_each_unit_spent_once [use_induction]:
+  "All tid c #i #j. Counted(tid, c) @ #i & Counted(tid, c) @ #j ==> #i = #j"
+
+lemma no_replay:
+  "All U tid kind scope amount opnum #i #j.
+     Executed(U, tid, kind, scope, amount, opnum) @ #i
+   & Executed(U, tid, kind, scope, amount, opnum) @ #j ==> #i = #j"
+
+lemma attribution:
+  "All U tid kind scope amount opnum #i.
+     Executed(U, tid, kind, scope, amount, opnum) @ #i
+     ==> (Ex A n #j. SignedTemplate(U, tid, A, scope, n) @ #j
+           & ( (Ex #k. AgentSigned(A, tid, kind, scope, amount, opnum) @ #k & #k < #i)
+             | (Ex #r. RevealAgent(A) @ #r) ))"
+
+end

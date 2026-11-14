@@ -1,0 +1,79 @@
+/*
+ * RQ1: the agent writes the boundary and the user approves it by signing.
+ * The agent is steered: it proposes any boundary and signs any operation
+ * the attacker chooses. The service checks both signatures and that the
+ * operation fits the signed boundary.
+ *
+ * Expected: executable                       verified
+ *           executed_was_approved            verified
+ *           executed_is_what_user_intended   falsified
+ *
+ * With -D=user_compares the user signs only a boundary equal to the
+ * intent, and all three lemmas are verified.
+ */
+
+theory AgentWrittenBoundary
+begin
+
+builtins: signing
+
+restriction Equality:
+  "All x y #i. Eq(x, y) @ #i ==> x = y"
+
+rule Register_User:
+  [ Fr(~skU) ]
+  --[ RegisterUser($U) ]->
+  [ !UserKey($U, ~skU), !UserPk($U, pk(~skU)), Out(pk(~skU)) ]
+
+rule Register_Agent:
+  [ Fr(~skA) ]
+  --[ RegisterAgent($A) ]->
+  [ !AgentKey($A, ~skA), !AgentPk($A, pk(~skA)), Out(pk(~skA)) ]
+
+rule User_Intent:
+  [ ]
+  --[ Intended($U, $op) ]->
+  [ UserIntent($U, $op) ]
+
+rule Agent_Writes_Boundary:
+  [ In(op), !AgentPk($A, pkA) ]
+  --[ AgentWrote($A, $U, op) ]->
+  [ Proposal($A, $U, pkA, op) ]
+
+#ifdef user_compares
+rule User_Approves:
+  [ UserIntent($U, op), Proposal($A, $U, pkA, op), !UserKey($U, ~skU) ]
+  --[ Approved($U, op) ]->
+  [ Out(<<'boundary', $U, pkA, op>,
+         sign(<'boundary', $U, pkA, op>, ~skU)>) ]
+#else
+rule User_Approves:
+  [ UserIntent($U, intended), Proposal($A, $U, pkA, op), !UserKey($U, ~skU) ]
+  --[ Approved($U, op) ]->
+  [ Out(<<'boundary', $U, pkA, op>,
+         sign(<'boundary', $U, pkA, op>, ~skU)>) ]
+#endif
+
+rule Agent_Signs_Operation:
+  [ In(op), !AgentKey($A, ~skA) ]
+  --[ AgentSigned($A, op) ]->
+  [ Out(sign(<'operation', op>, ~skA)) ]
+
+rule Service_Executes:
+  [ In(<<'boundary', $U, pkA, op>, sigU, sigA>), !UserPk($U, pkU) ]
+  --[ Eq(verify(sigU, <'boundary', $U, pkA, op>, pkU), true),
+      Eq(verify(sigA, <'operation', op>, pkA), true),
+      Executed($U, op) ]->
+  [ ]
+
+lemma executable:
+  exists-trace
+  "Ex U op #i #j. Intended(U, op) @ #i & Executed(U, op) @ #j & #i < #j"
+
+lemma executed_was_approved:
+  "All U op #j. Executed(U, op) @ #j ==> (Ex #i. Approved(U, op) @ #i & #i < #j)"
+
+lemma executed_is_what_user_intended:
+  "All U op #j. Executed(U, op) @ #j ==> (Ex #i. Intended(U, op) @ #i & #i < #j)"
+
+end
