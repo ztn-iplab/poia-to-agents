@@ -18,6 +18,7 @@ Requires [uv](https://docs.astral.sh/uv/).
 - `tamarin/`: the Tamarin models and the script that checks them.
 - `templates/`: the template list and the label of every AgentDojo user task.
 - `src/poia_agents/coverage.py`: the coverage of the tasks by the templates.
+- `src/poia_agents/check.py`: the check a service runs before it executes an operation. `tests/test_check.py` has one test for each condition, matching the flags in `tamarin/README.md`.
 
 To reproduce the coverage table:
 
