@@ -6,8 +6,7 @@
       "service": "bank",
       "statement": "Pay only [payees], at most [X] per payment, at most [N] payments, until [D].",
       "tools": [
-        "send_money",
-        "schedule_transaction"
+        "send_money"
       ]
     },
     {

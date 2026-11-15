@@ -57,7 +57,7 @@ def test_labels_use_the_catalog():
             for operation in operations:
                 where = (suite_name, task_id, operation["tool"])
                 assert operation["action"] in {"stated", "content"}, where
-                assert all(target["source"] in SOURCES for target in operation["targets"]), where
+                assert all(target["source"] in SOURCES and target["role"] for target in operation["targets"]), where
                 assert operation.get("amount", "stated") in SOURCES, where
                 if operation["tool"] in catalog["always_fresh"]:
                     assert "template" not in operation, where

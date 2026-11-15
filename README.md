@@ -19,10 +19,14 @@ Requires [uv](https://docs.astral.sh/uv/).
 - `templates/`: the template list and the label of every AgentDojo user task.
 - `src/poia_agents/coverage.py`: the coverage of the tasks by the templates.
 - `src/poia_agents/check.py`: the check a service runs before it executes an operation. `tests/test_check.py` has one test for each condition, matching the flags in `tamarin/README.md`.
+- `src/poia_agents/effects.py`: what each AgentDojo tool call affects, its targets and its amount.
+- `src/poia_agents/guard.py`: a simulated user who signs the templates of a task and approves fresh operations, and a runtime that asks the service before every state-changing tool call.
+- `src/poia_agents/replay.py`: the reference solutions of AgentDojo replayed through the check, without an LLM.
 
-To reproduce the coverage table:
+To reproduce the coverage table and the replay:
 
     uv run python -m poia_agents.coverage
+    uv run python -m poia_agents.replay
 
 ## AgentDojo
 

@@ -15,6 +15,8 @@ A template is signed before the agent runs, so it can hold only values the user 
 | `computed` | The agent works the value out from the service's records. |
 | `content` | The agent reads the value from content that another party can write. |
 
+Each target has a `role` (payee, recipient, invitee, file, and so on) and the `value` as the user gives it. Where the service displays something else for signing, `resolved` holds it: the identifiers a looked-up name resolves to, or a stated value in the form the tool uses.
+
 `action` is `content` when the request leaves the choice of operation to content, as in "do what the email says". `amount` is recorded only where the operation moves money.
 
 ## Decision

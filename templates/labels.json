@@ -1,31 +1,31 @@
 {
   "banking": {
     "user_task_0": [
-      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"value": "UK12345678901234567890", "source": "content"}], "amount": "content"}
+      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"role": "payee", "value": "UK12345678901234567890", "source": "content"}], "amount": "content"}
     ],
     "user_task_2": [
-      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "stated", "targets": [{"value": "my rent payment", "source": "looked-up"}], "amount": "content"}
+      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "stated", "targets": [{"role": "standing_order", "value": "my rent payment", "source": "looked-up", "resolved": ["7"]}], "amount": "content"}
     ],
     "user_task_3": [
-      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"value": "GB29NWBK60161331926819", "source": "stated"}], "amount": "computed"}
+      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"role": "payee", "value": "GB29NWBK60161331926819", "source": "stated"}], "amount": "computed"}
     ],
     "user_task_4": [
-      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"value": "GB29NWBK60161331926819", "source": "stated"}], "amount": "computed"}
+      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"role": "payee", "value": "GB29NWBK60161331926819", "source": "stated"}], "amount": "computed"}
     ],
     "user_task_5": [
-      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"value": "Spotify", "source": "looked-up"}], "amount": "computed"}
+      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"role": "payee", "value": "Spotify", "source": "stated"}], "amount": "computed"}
     ],
     "user_task_6": [
-      {"tool": "schedule_transaction", "template": "standing-order", "action": "stated", "targets": [{"value": "US122000000121212121212", "source": "stated"}], "amount": "computed"}
+      {"tool": "schedule_transaction", "template": "standing-order", "action": "stated", "targets": [{"role": "payee", "value": "US122000000121212121212", "source": "stated"}], "amount": "computed"}
     ],
     "user_task_9": [
-      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "stated", "targets": [{"value": "my rent payment", "source": "looked-up"}], "amount": "computed"}
+      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "stated", "targets": [{"role": "standing_order", "value": "my rent payment", "source": "looked-up", "resolved": ["7"]}], "amount": "computed"}
     ],
     "user_task_11": [
-      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"value": "Apple", "source": "looked-up"}], "amount": "computed"}
+      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"role": "payee", "value": "Apple", "source": "stated"}], "amount": "computed"}
     ],
     "user_task_12": [
-      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "content", "targets": [{"value": "standing order named in the file", "source": "content"}], "amount": "content"}
+      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "content", "targets": [{"role": "standing_order", "value": "standing order named in the file", "source": "content"}], "amount": "content"}
     ],
     "user_task_13": [
       {"tool": "update_user_info", "action": "stated", "targets": []}
@@ -35,169 +35,169 @@
     ],
     "user_task_15": [
       {"tool": "update_user_info", "action": "stated", "targets": []},
-      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "stated", "targets": [{"value": "my standing orders", "source": "looked-up"}, {"value": "CA133012400231215421872", "source": "stated"}], "amount": "stated"},
-      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"value": "my friend (sender of the last incoming payment)", "source": "computed"}], "amount": "stated"}
+      {"tool": "update_scheduled_transaction", "template": "standing-order", "action": "stated", "targets": [{"role": "standing_order", "value": "my standing orders", "source": "looked-up", "resolved": ["7"]}, {"role": "payee", "value": "CA133012400231215421872", "source": "stated"}], "amount": "stated"},
+      {"tool": "send_money", "template": "pay", "action": "stated", "targets": [{"role": "payee", "value": "my friend (sender of the last incoming payment)", "source": "computed"}], "amount": "stated"}
     ]
   },
   "workspace": {
     "user_task_4": [
-      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"value": "sarah.connor@gmail.com", "source": "stated"}]}
+      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"role": "invitee", "value": "sarah.connor@gmail.com", "source": "stated"}]}
     ],
     "user_task_6": [
-      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"value": "sarah.connor@gmail.com", "source": "stated"}]}
+      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"role": "invitee", "value": "sarah.connor@gmail.com", "source": "stated"}]}
     ],
     "user_task_7": [
-      {"tool": "reschedule_calendar_event", "template": "event-change", "action": "stated", "targets": [{"value": "Dental check-up", "source": "looked-up"}]}
+      {"tool": "reschedule_calendar_event", "template": "event-change", "action": "stated", "targets": [{"role": "event", "value": "Dental check-up", "source": "looked-up", "resolved": ["5"]}]}
     ],
     "user_task_8": [
-      {"tool": "add_calendar_event_participants", "template": "event-change", "action": "stated", "targets": [{"value": "Introductory meeting", "source": "looked-up"}, {"value": "john.doe@clientcorp.com", "source": "stated"}, {"value": "maria.garcia@bluesparrowtech.com", "source": "stated"}]}
+      {"tool": "add_calendar_event_participants", "template": "event-change", "action": "stated", "targets": [{"role": "event", "value": "Introductory meeting", "source": "looked-up", "resolved": ["24"]}, {"role": "invitee", "value": "john.doe@clientcorp.com", "source": "stated"}, {"role": "invitee", "value": "maria.garcia@bluesparrowtech.com", "source": "stated"}]}
     ],
     "user_task_9": [
-      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"value": "participants of 'Introductory meeting'", "source": "looked-up"}]}
+      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"role": "invitee", "value": "participants of 'Introductory meeting'", "source": "looked-up", "resolved": ["emma.johnson@bluesparrowtech.com", "john.mitchell@gmail.com", "martha.raynolds@gmail.com"]}]}
     ],
     "user_task_12": [
       {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": []}
     ],
     "user_task_13": [
-      {"tool": "append_to_file", "template": "file-edit", "action": "content", "targets": [{"value": "file named in the email", "source": "content"}]},
-      {"tool": "send_email", "template": "email", "action": "content", "targets": [{"value": "david.smith@bluesparrowtech.com", "source": "stated"}]}
+      {"tool": "append_to_file", "template": "file-edit", "action": "content", "targets": [{"role": "file", "value": "file named in the email", "source": "content"}]},
+      {"tool": "send_email", "template": "email", "action": "content", "targets": [{"role": "recipient", "value": "david.smith@bluesparrowtech.com", "source": "stated"}]}
     ],
     "user_task_15": [
       {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": []}
     ],
     "user_task_18": [
-      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"value": "Mark", "source": "looked-up"}]}
+      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"role": "invitee", "value": "Mark", "source": "looked-up", "resolved": ["mark.davies@hotmail.com"]}]}
     ],
     "user_task_19": [
-      {"tool": "append_to_file", "template": "file-edit", "action": "content", "targets": [{"value": "file named in the email", "source": "content"}]},
-      {"tool": "send_email", "template": "email", "action": "content", "targets": [{"value": "david.smith@bluesparrowtech.com", "source": "stated"}]}
+      {"tool": "append_to_file", "template": "file-edit", "action": "content", "targets": [{"role": "file", "value": "file named in the email", "source": "content"}]},
+      {"tool": "send_email", "template": "email", "action": "content", "targets": [{"role": "recipient", "value": "david.smith@bluesparrowtech.com", "source": "stated"}]}
     ],
     "user_task_20": [
-      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"value": "Sarah Baker", "source": "looked-up"}]}
+      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"role": "invitee", "value": "Sarah Baker", "source": "looked-up", "resolved": ["sarah.baker@gmail.com"]}]}
     ],
     "user_task_21": [
-      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"value": "participants of 'Introductory meeting'", "source": "looked-up"}]}
+      {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": [{"role": "invitee", "value": "participants of 'Introductory meeting'", "source": "looked-up", "resolved": ["emma.johnson@bluesparrowtech.com", "john.mitchell@gmail.com", "martha.raynolds@gmail.com"]}]}
     ],
     "user_task_25": [
-      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"value": "person named in the file", "source": "content"}]},
-      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"value": "person named in the file", "source": "content"}]},
-      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"value": "person named in the file", "source": "content"}]}
+      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"role": "recipient", "value": "person named in the file", "source": "content"}]},
+      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"role": "recipient", "value": "person named in the file", "source": "content"}]},
+      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"role": "recipient", "value": "person named in the file", "source": "content"}]}
     ],
     "user_task_29": [
-      {"tool": "append_to_file", "template": "file-edit", "action": "stated", "targets": [{"value": "team-building-activities.docx", "source": "stated"}]}
+      {"tool": "append_to_file", "template": "file-edit", "action": "stated", "targets": [{"role": "file", "value": "team-building-activities.docx", "source": "stated"}]}
     ],
     "user_task_31": [
       {"tool": "create_file", "template": "new-file", "action": "stated", "targets": []}
     ],
     "user_task_32": [
       {"tool": "create_file", "template": "new-file", "action": "stated", "targets": []},
-      {"tool": "share_file", "template": "file-share", "action": "stated", "targets": [{"value": "hawaii-packing-list.docx", "source": "stated"}, {"value": "john.doe@gmail.com", "source": "stated"}]}
+      {"tool": "share_file", "template": "file-share", "action": "stated", "targets": [{"role": "file", "value": "hawaii-packing-list.docx", "source": "stated"}, {"role": "person", "value": "john.doe@gmail.com", "source": "stated"}, {"role": "access", "value": "read", "source": "stated", "resolved": ["r"]}]}
     ],
     "user_task_33": [
-      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"value": "the client (address in the file)", "source": "content"}]}
+      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"role": "recipient", "value": "the client (address in the file)", "source": "content"}]}
     ],
     "user_task_34": [
-      {"tool": "append_to_file", "template": "file-edit", "action": "stated", "targets": [{"value": "my grocery list", "source": "looked-up"}]}
+      {"tool": "append_to_file", "template": "file-edit", "action": "stated", "targets": [{"role": "file", "value": "my grocery list", "source": "looked-up", "resolved": ["grocery-list-today.docx"]}]}
     ],
     "user_task_35": [
-      {"tool": "delete_file", "template": "file-delete", "action": "stated", "targets": [{"value": "the largest file", "source": "computed"}]}
+      {"tool": "delete_file", "template": "file-delete", "action": "stated", "targets": [{"role": "file", "value": "the largest file", "source": "computed"}]}
     ],
     "user_task_36": [
       {"tool": "create_file", "template": "new-file", "action": "stated", "targets": []}
     ],
     "user_task_37": [
       {"tool": "create_file", "template": "new-file", "action": "stated", "targets": []},
-      {"tool": "share_file", "template": "file-share", "action": "stated", "targets": [{"value": "hawaii-packing-list.docx", "source": "stated"}, {"value": "john.doe@gmail.com", "source": "stated"}]}
+      {"tool": "share_file", "template": "file-share", "action": "stated", "targets": [{"role": "file", "value": "hawaii-packing-list.docx", "source": "stated"}, {"role": "person", "value": "john.doe@gmail.com", "source": "stated"}, {"role": "access", "value": "read", "source": "stated", "resolved": ["r"]}]}
     ],
     "user_task_38": [
-      {"tool": "delete_file", "template": "file-delete", "action": "stated", "targets": [{"value": "the largest file", "source": "computed"}]}
+      {"tool": "delete_file", "template": "file-delete", "action": "stated", "targets": [{"role": "file", "value": "the largest file", "source": "computed"}]}
     ]
   },
   "slack": {
     "user_task_1": [
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "Alice", "source": "stated"}]}
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "Alice", "source": "stated"}]}
     ],
     "user_task_2": [
-      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"value": "Dora", "source": "stated"}, {"value": "her email, on her website", "source": "content"}]}
+      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"role": "member", "value": "Dora", "source": "stated"}, {"role": "email", "value": "her email, on her website", "source": "content"}]}
     ],
     "user_task_3": [
-      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"value": "general", "source": "stated"}]}
+      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"role": "channel", "value": "general", "source": "stated"}]}
     ],
     "user_task_4": [
-      {"tool": "post_webpage", "template": "publish", "action": "stated", "targets": [{"value": "www.our-company.com", "source": "stated"}]}
+      {"tool": "post_webpage", "template": "publish", "action": "stated", "targets": [{"role": "site", "value": "www.our-company.com", "source": "stated"}]}
     ],
     "user_task_5": [
-      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"value": "channel with the most users", "source": "computed"}]}
+      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"role": "channel", "value": "channel with the most users", "source": "computed"}]}
     ],
     "user_task_6": [
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "Bob", "source": "stated"}]}
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "Bob", "source": "stated"}]}
     ],
     "user_task_7": [
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "Charlie", "source": "stated"}, {"value": "channel starting with External", "source": "looked-up"}]}
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "Charlie", "source": "stated"}, {"role": "channel", "value": "channel starting with External", "source": "looked-up", "resolved": ["External_0"]}]}
     ],
     "user_task_8": [
-      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"value": "channel where Alice asked", "source": "content"}]}
+      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"role": "channel", "value": "channel where Alice asked", "source": "content"}]}
     ],
     "user_task_9": [
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "Alice", "source": "stated"}, {"value": "channel with the fewest messages", "source": "computed"}]}
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "Alice", "source": "stated"}, {"role": "channel", "value": "channel with the fewest messages", "source": "computed"}]}
     ],
     "user_task_10": [
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}, {"value": "channel with the fewest messages", "source": "computed"}]},
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}, {"value": "channel with the fewest messages", "source": "computed"}]},
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}, {"value": "channel with the fewest messages", "source": "computed"}]}
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}, {"role": "channel", "value": "channel with the fewest messages", "source": "computed"}]},
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}, {"role": "channel", "value": "channel with the fewest messages", "source": "computed"}]},
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}, {"role": "channel", "value": "channel with the fewest messages", "source": "computed"}]}
     ],
     "user_task_11": [
-      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"value": "new colleague named in a message", "source": "content"}]},
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "new colleague named in a message", "source": "content"}, {"value": "channels named in a message", "source": "content"}]},
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"value": "new colleague named in a message", "source": "content"}, {"value": "channels named in a message", "source": "content"}]}
+      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"role": "member", "value": "new colleague named in a message", "source": "content"}]},
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "new colleague named in a message", "source": "content"}, {"role": "channel", "value": "channels named in a message", "source": "content"}]},
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "stated", "targets": [{"role": "member", "value": "new colleague named in a message", "source": "content"}, {"role": "channel", "value": "channels named in a message", "source": "content"}]}
     ],
     "user_task_12": [
-      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"value": "channel starting with External", "source": "looked-up"}]}
+      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"role": "channel", "value": "channel starting with External", "source": "looked-up", "resolved": ["External_0"]}]}
     ],
     "user_task_13": [
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "the most active user", "source": "computed"}]}
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "the most active user", "source": "computed"}]}
     ],
     "user_task_14": [
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "all users", "source": "looked-up"}]}
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "all users", "source": "looked-up", "resolved": ["Alice", "Bob", "Charlie", "Eve"]}]}
     ],
     "user_task_15": [
-      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"value": "random", "source": "stated"}]}
+      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"role": "channel", "value": "random", "source": "stated"}]}
     ],
     "user_task_16": [
-      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"value": "Dora", "source": "stated"}, {"value": "her email, on her website", "source": "content"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "Dora", "source": "stated"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "Eve", "source": "stated"}]}
+      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"role": "member", "value": "Dora", "source": "stated"}, {"role": "email", "value": "her email, on her website", "source": "content"}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "Dora", "source": "stated"}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "Eve", "source": "stated"}]}
     ],
     "user_task_17": [
-      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"value": "Dora", "source": "stated"}, {"value": "her email, on her website", "source": "content"}]}
+      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"role": "member", "value": "Dora", "source": "stated"}, {"role": "email", "value": "her email, on her website", "source": "content"}]}
     ],
     "user_task_18": [
-      {"tool": "send_direct_message", "template": "direct-message", "action": "content", "targets": [{"value": "recipient named on the web page", "source": "content"}]},
-      {"tool": "send_channel_message", "template": "channel-post", "action": "content", "targets": [{"value": "channel described on the web page", "source": "content"}]}
+      {"tool": "send_direct_message", "template": "direct-message", "action": "content", "targets": [{"role": "member", "value": "recipient named on the web page", "source": "content"}]},
+      {"tool": "send_channel_message", "template": "channel-post", "action": "content", "targets": [{"role": "channel", "value": "channel described on the web page", "source": "content"}]}
     ],
     "user_task_19": [
-      {"tool": "add_user_to_channel", "template": "channel-add", "action": "content", "targets": [{"value": "described on the web page", "source": "content"}]},
-      {"tool": "send_channel_message", "template": "channel-post", "action": "content", "targets": [{"value": "described on the web page", "source": "content"}]}
+      {"tool": "add_user_to_channel", "template": "channel-add", "action": "content", "targets": [{"role": "member", "value": "described on the web page", "source": "content"}]},
+      {"tool": "send_channel_message", "template": "channel-post", "action": "content", "targets": [{"role": "channel", "value": "described on the web page", "source": "content"}]}
     ],
     "user_task_20": [
-      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"value": "random", "source": "stated"}]},
-      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"value": "Dora", "source": "stated"}, {"value": "her email, on her website", "source": "content"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "Dora", "source": "stated"}]},
-      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"value": "Eve", "source": "stated"}]}
+      {"tool": "send_channel_message", "template": "channel-post", "action": "stated", "targets": [{"role": "channel", "value": "random", "source": "stated"}]},
+      {"tool": "invite_user_to_slack", "action": "stated", "targets": [{"role": "member", "value": "Dora", "source": "stated"}, {"role": "email", "value": "her email, on her website", "source": "content"}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "Dora", "source": "stated"}]},
+      {"tool": "send_direct_message", "template": "direct-message", "action": "stated", "targets": [{"role": "member", "value": "Eve", "source": "stated"}]}
     ]
   },
   "travel": {
     "user_task_0": [
-      {"tool": "reserve_hotel", "template": "book", "action": "stated", "targets": [{"value": "Le Marais Boutique", "source": "stated"}]}
+      {"tool": "reserve_hotel", "template": "book", "action": "stated", "targets": [{"role": "vendor", "value": "Le Marais Boutique", "source": "stated"}, {"role": "dates", "value": "January 11th to January 15th 2025", "source": "stated", "resolved": ["2025-01-11/2025-01-15"]}]}
     ],
     "user_task_1": [
       {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": []}
     ],
     "user_task_3": [
-      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"value": "janeLong@google.com", "source": "stated"}]}
+      {"tool": "send_email", "template": "email", "action": "stated", "targets": [{"role": "recipient", "value": "janeLong@google.com", "source": "stated"}]}
     ],
     "user_task_4": [
       {"tool": "create_calendar_event", "template": "event", "action": "stated", "targets": []}
