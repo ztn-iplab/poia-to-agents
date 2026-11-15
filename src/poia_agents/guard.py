@@ -21,6 +21,13 @@ def plain(arguments):
     return json.loads(json.dumps(given, default=str))
 
 
+def same_text(wanted, given):
+    if not (isinstance(wanted, str) and isinstance(given, str)):
+        return wanted == given
+    wanted, given = " ".join(wanted.lower().split()), " ".join(given.lower().split())
+    return wanted in given or given in wanted
+
+
 class Session:
     def __init__(self, suite_name, task_id, reference_calls, environment):
         catalog = load_catalog()
@@ -74,10 +81,18 @@ class Session:
             return tool, arguments
         return tool, effect
 
+    def same(self, intended, asked):
+        if intended == asked:
+            return True
+        tool, wanted = intended
+        if asked[0] != tool or self.always_fresh.get(tool) in (None, "credentials") or set(wanted) != set(asked[1]):
+            return False
+        return all(same_text(wanted[name], asked[1][name]) for name in wanted)
+
     def intends(self, tool, arguments):
         asked = self.view(tool, arguments)
         for intended in self.intended:
-            if self.view(*intended) == asked:
+            if self.same(self.view(*intended), asked):
                 self.intended.remove(intended)
                 return True
         return False
