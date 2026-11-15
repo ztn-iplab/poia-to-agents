@@ -21,12 +21,18 @@ Requires [uv](https://docs.astral.sh/uv/).
 - `src/poia_agents/check.py`: the check a service runs before it executes an operation. `tests/test_check.py` has one test for each condition, matching the flags in `tamarin/README.md`.
 - `src/poia_agents/effects.py`: what each AgentDojo tool call affects, its targets and its amount.
 - `src/poia_agents/guard.py`: a simulated user who signs the templates of a task and approves fresh operations, and a runtime that asks the service before every state-changing tool call.
+- `src/poia_agents/harness.py`: runs one AgentDojo case, with or without the check, and judges only the operations that executed.
 - `src/poia_agents/replay.py`: the reference solutions and the reference attacks of AgentDojo replayed through the check, without an LLM.
+- `src/poia_agents/experiment.py`: an LLM agent on one suite, with and without the check, under AgentDojo's `important_instructions` attack. Each case is saved under `results/`.
 
 To reproduce the coverage table and the replay:
 
     uv run python -m poia_agents.coverage
     uv run python -m poia_agents.replay
+
+To run an LLM agent, put `OPENAI_API_KEY` in `.env` and run, for example:
+
+    uv run python -m poia_agents.experiment --model gpt-6-luna --suite banking
 
 ## AgentDojo
 

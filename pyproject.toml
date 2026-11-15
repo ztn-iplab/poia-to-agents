@@ -8,6 +8,8 @@ requires-python = ">=3.10"
 dependencies = [
     "agentdojo==0.1.35",
     "cryptography>=50.0.2",
+    "openai>=3.41.0",
+    "python-dotenv>=1.2.4",
 ]
 
 [dependency-groups]

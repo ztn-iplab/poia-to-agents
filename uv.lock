@@ -1625,6 +1625,8 @@ source = { editable = "." }
 dependencies = [
     { name = "agentdojo" },
     { name = "cryptography" },
+    { name = "openai" },
+    { name = "python-dotenv" },
 ]
 
 [package.dev-dependencies]
@@ -1636,6 +1638,8 @@ dev = [
 requires-dist = [
     { name = "agentdojo", specifier = "==0.1.35" },
     { name = "cryptography", specifier = ">=50.0.2" },
+    { name = "openai", specifier = ">=3.41.0" },
+    { name = "python-dotenv", specifier = ">=1.2.4" },
 ]
 
 [package.metadata.requires-dev]

@@ -17,7 +17,8 @@ EXPIRES = (NOW + timedelta(days=1)).isoformat()
 
 
 def plain(arguments):
-    return json.loads(json.dumps(dict(arguments), default=str))
+    given = {name: value for name, value in dict(arguments).items() if value is not None}
+    return json.loads(json.dumps(given, default=str))
 
 
 class Session:
@@ -67,10 +68,18 @@ class Session:
             templates.append(template)
         return templates
 
+    def view(self, tool, arguments):
+        effect = effect_of(tool, arguments, self.environment)
+        if tool in self.always_fresh or not (any(effect.targets.values()) or effect.amount is not None):
+            return tool, arguments
+        return tool, effect
+
     def intends(self, tool, arguments):
-        if (tool, arguments) in self.intended:
-            self.intended.remove((tool, arguments))
-            return True
+        asked = self.view(tool, arguments)
+        for intended in self.intended:
+            if self.view(*intended) == asked:
+                self.intended.remove(intended)
+                return True
         return False
 
     def executed(self, calls):
