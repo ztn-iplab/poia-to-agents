@@ -2,6 +2,7 @@
 
 import json
 from collections import Counter
+from functools import cache
 from pathlib import Path
 
 from agentdojo.task_suite.load_suites import get_suite
@@ -51,10 +52,12 @@ WRITE_TOOLS = {
 TASK_CLASSES = ("no state change", "template only", "template and fresh", "fresh only")
 
 
+@cache
 def load_catalog():
     return json.loads((TEMPLATES_DIR / "catalog.json").read_text())
 
 
+@cache
 def load_labels():
     return json.loads((TEMPLATES_DIR / "labels.json").read_text())
 

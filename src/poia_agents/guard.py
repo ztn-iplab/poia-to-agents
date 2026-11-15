@@ -67,17 +67,15 @@ class Session:
             templates.append(template)
         return templates
 
-    def shown(self, tool, arguments):
-        effect = effect_of(tool, arguments, self.environment)
-        return tool, effect, arguments if tool in self.always_fresh else None
-
     def intends(self, tool, arguments):
-        asked = self.shown(tool, arguments)
-        for intended in self.intended:
-            if self.shown(*intended) == asked:
-                self.intended.remove(intended)
-                return True
+        if (tool, arguments) in self.intended:
+            self.intended.remove((tool, arguments))
+            return True
         return False
+
+    def executed(self, calls):
+        outcomes = iter(self.outcomes)
+        return [call for call in calls if call.function not in self.write_tools or next(outcomes)[1] != "refused"]
 
     def request(self, tool, arguments, environment):
         self.environment = environment
@@ -106,8 +104,5 @@ class GuardedRuntime(FunctionsRuntime):
 
     def run_function(self, env, function, kwargs, raise_on_error=False):
         if function in self.session.write_tools and self.session.request(function, kwargs, env) == "refused":
-            message = f"`{function}` is outside the user's approval and was not executed."
-            if raise_on_error:
-                raise PermissionError(message)
-            return "", f"PermissionError: {message}"
+            return "", f"PermissionError: `{function}` is outside the user's approval and was not executed."
         return super().run_function(env, function, kwargs, raise_on_error)
