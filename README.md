@@ -23,7 +23,8 @@ Requires [uv](https://docs.astral.sh/uv/).
 - `src/poia_agents/guard.py`: a simulated user who signs the templates of a task and approves fresh operations, and a runtime that asks the service before every state-changing tool call.
 - `src/poia_agents/harness.py`: runs one AgentDojo case, with or without the check, and judges only the operations that executed.
 - `src/poia_agents/replay.py`: the reference solutions and the reference attacks of AgentDojo replayed through the check, without an LLM.
-- `src/poia_agents/experiment.py`: an LLM agent on one suite, with and without the check, under AgentDojo's `important_instructions` attack. Each case is saved under `results/`.
+- `src/poia_agents/experiment.py`: an LLM agent on one suite, with and without the check, under AgentDojo's `important_instructions` or `tool_knowledge` attack. Each case is saved under `results/`.
+- `src/poia_agents/responses.py`: OpenAI's Responses API as an AgentDojo model element, for reasoning models that call tools.
 - `src/poia_agents/poia.py`: template and operation approvals through a PoIA relying party, signed with ZT-Authenticator or a passkey. The signature is verified here, not taken from the relying party's status.
 - `src/poia_agents/demo.py`: one task end to end, with every approval signed by the user.
 - `src/poia_agents/devices.py`: software stand-ins for ZT-Authenticator and a passkey, used by the tests and the benchmark.

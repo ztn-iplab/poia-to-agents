@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 
 from poia_agents.coverage import BENCHMARK_VERSION, SUITES
 from poia_agents.harness import open_session, run
+from poia_agents.responses import ResponsesLLM
 
 RESULTS = Path("results")
 ATTACK_NAMES = ("important_instructions", "tool_knowledge")
@@ -51,18 +52,27 @@ ROWS = (
 class Metered:
     def __init__(self, client):
         self.calls = self.input = self.cached = self.output = 0
-        self.create = client.chat.completions.create
+        self.client = client
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.count))
+        self.responses = SimpleNamespace(create=self.count_response)
+
+    def add(self, input_tokens, details, output_tokens):
+        self.calls += 1
+        self.input += input_tokens
+        self.cached += getattr(details, "cached_tokens", None) or 0
+        self.output += output_tokens
 
     def count(self, **request):
-        completion = self.create(**request)
+        completion = self.client.chat.completions.create(**request)
         usage = completion.usage
-        details = getattr(usage, "prompt_tokens_details", None)
-        self.calls += 1
-        self.input += usage.prompt_tokens
-        self.cached += getattr(details, "cached_tokens", None) or 0
-        self.output += usage.completion_tokens
+        self.add(usage.prompt_tokens, getattr(usage, "prompt_tokens_details", None), usage.completion_tokens)
         return completion
+
+    def count_response(self, **request):
+        response = self.client.responses.create(**request)
+        usage = response.usage
+        self.add(usage.input_tokens, getattr(usage, "input_tokens_details", None), usage.output_tokens)
+        return response
 
     def reading(self):
         return Counter(calls=self.calls, input=self.input, cached=self.cached, output=self.output)
@@ -162,6 +172,7 @@ def main():
     parser.add_argument("--suite", default="banking", choices=SUITES)
     parser.add_argument("--tasks", type=int, help="only the first N user tasks")
     parser.add_argument("--goals", type=int, help="only the first N attacker goals; 0 runs no attack")
+    parser.add_argument("--api", default="chat", choices=["chat", "responses"], help="responses for reasoning models")
     parser.add_argument("--reasoning-effort", default="none", help="none allows tool calls on chat completions")
     parser.add_argument("--attack", default="important_instructions", choices=ATTACK_NAMES)
     parser.add_argument("--run", type=int, default=1, help="number of a repeated run")
@@ -174,7 +185,11 @@ def main():
     except openai.NotFoundError:
         raise SystemExit(f"{args.model} is not available to this API key.") from None
     meter = Metered(client)
-    agent = build_agent(OpenAILLM(meter, args.model, reasoning_effort=args.reasoning_effort))
+    if args.api == "responses":
+        llm = ResponsesLLM(meter, args.model, args.reasoning_effort)
+    else:
+        llm = OpenAILLM(meter, args.model, reasoning_effort=args.reasoning_effort)
+    agent = build_agent(llm)
     suite = get_suite(BENCHMARK_VERSION, args.suite)
     attack = make_attack(args.attack, suite, agent, spoken_name(args.model))
     task_ids = list(suite.user_tasks)[: args.tasks]
@@ -182,7 +197,8 @@ def main():
     cases = [(task_id, None) for task_id in task_ids]
     cases += [(task_id, injection_id) for task_id in task_ids for injection_id in injection_ids]
 
-    configuration = args.model if args.reasoning_effort == "none" else f"{args.model}-{args.reasoning_effort}"
+    plain_chat = args.api == "chat" and args.reasoning_effort == "none"
+    configuration = args.model if plain_chat else f"{args.model}-{args.api}-{args.reasoning_effort}"
     folder = RESULTS / configuration / args.attack / f"run{args.run}" / args.suite
     records, failed, in_a_row = [], 0, 0
     for task_id, injection_id in cases:
@@ -193,7 +209,8 @@ def main():
                 continue
             try:
                 record = run_case(args.suite, task_id, injection_id, agent, attack, check, meter)
-                record.update(model=args.model, attack=args.attack, run=args.run)
+                record.update(model=args.model, api=args.api, reasoning_effort=args.reasoning_effort)
+                record.update(attack=args.attack, run=args.run)
             except Exception as error:
                 failed, in_a_row = failed + 1, in_a_row + 1
                 print(f"{task_id} {injection_id or '-'}: {type(error).__name__}: {error}")
