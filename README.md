@@ -24,15 +24,26 @@ Requires [uv](https://docs.astral.sh/uv/).
 - `src/poia_agents/harness.py`: runs one AgentDojo case, with or without the check, and judges only the operations that executed.
 - `src/poia_agents/replay.py`: the reference solutions and the reference attacks of AgentDojo replayed through the check, without an LLM.
 - `src/poia_agents/experiment.py`: an LLM agent on one suite, with and without the check, under AgentDojo's `important_instructions` attack. Each case is saved under `results/`.
+- `src/poia_agents/poia.py`: template and operation approvals through a PoIA relying party, signed with ZT-Authenticator or a passkey. The signature is verified here, not taken from the relying party's status.
+- `src/poia_agents/demo.py`: one task end to end, with every approval signed by the user.
+- `src/poia_agents/devices.py`: software stand-ins for ZT-Authenticator and a passkey, used by the tests and the benchmark.
+- `src/poia_agents/bench.py`: the time the check takes per operation, and per template approval.
 
 To reproduce the coverage table and the replay:
 
     uv run python -m poia_agents.coverage
     uv run python -m poia_agents.replay
+    uv run python -m poia_agents.bench
 
 To run an LLM agent, put `OPENAI_API_KEY` in `.env` and run, for example:
 
     uv run python -m poia_agents.experiment --model gpt-6-luna --suite banking
+
+To run one task with real approvals, start the PoIA prototype with `POIA_TEST_MODE=true`, enroll ZT-Authenticator or a passkey, and run:
+
+    uv run python -m poia_agents.demo --user-id <your user id> --signer zt --attack injection_task_0
+
+With `--signer webauthn`, each approval opens in the browser, where you sign with the passkey.
 
 ## AgentDojo
 

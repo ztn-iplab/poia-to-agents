@@ -25,10 +25,11 @@ def start_of(suite_name, task, injections=None):
     return task.init_environment(environment)
 
 
-def open_session(suite_name, task_id):
+def open_session(suite_name, task_id, user=None, now=None):
     task = get_suite(BENCHMARK_VERSION, suite_name).user_tasks[task_id]
     start = start_of(suite_name, task)
-    return Session(suite_name, task_id, task.ground_truth(start), start)
+    timing = {} if now is None else {"now": now}
+    return Session(suite_name, task_id, task.ground_truth(start), start, user, **timing)
 
 
 def judge(task, output, before, after, trace):

@@ -16,8 +16,8 @@ from agentdojo.agent_pipeline import (
     ToolsExecutor,
 )
 from agentdojo.agent_pipeline.agent_pipeline import load_system_message
+from agentdojo.attacks.attack_registry import ATTACKS
 from agentdojo.attacks.base_attacks import FixedJailbreakAttack
-from agentdojo.attacks.important_instructions_attacks import ImportantInstructionsAttack
 from agentdojo.task_suite.load_suites import get_suite
 from dotenv import load_dotenv
 
@@ -25,6 +25,12 @@ from poia_agents.coverage import BENCHMARK_VERSION, SUITES
 from poia_agents.harness import open_session, run
 
 RESULTS = Path("results")
+ATTACK_NAMES = ("important_instructions", "tool_knowledge")
+PRICES = {
+    "gpt-6-luna": (0.10, 0.01, 0.50),
+    "gpt-6.1-sol": (2.0, 0.10, 10.0),
+    "gpt-6-astra": (10.0, 1.0, 50.0),
+}
 ROWS = (
     "tasks without attack",
     "  solved",
@@ -36,32 +42,47 @@ ROWS = (
     "operations: refused",
     "LLM calls",
     "input tokens",
+    "  cached",
     "output tokens",
+    "cost (USD)",
 )
 
 
 class Metered:
     def __init__(self, client):
-        self.calls = self.input = self.output = 0
+        self.calls = self.input = self.cached = self.output = 0
         self.create = client.chat.completions.create
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.count))
 
     def count(self, **request):
         completion = self.create(**request)
+        usage = completion.usage
+        details = getattr(usage, "prompt_tokens_details", None)
         self.calls += 1
-        self.input += completion.usage.prompt_tokens
-        self.output += completion.usage.completion_tokens
+        self.input += usage.prompt_tokens
+        self.cached += getattr(details, "cached_tokens", None) or 0
+        self.output += usage.completion_tokens
         return completion
 
     def reading(self):
-        return Counter(calls=self.calls, input=self.input, output=self.output)
+        return Counter(calls=self.calls, input=self.input, cached=self.cached, output=self.output)
 
 
-class Injection(ImportantInstructionsAttack):
-    def __init__(self, suite, agent, model_name):
-        FixedJailbreakAttack.__init__(self, self._JB_STRING, suite, agent)
-        self.user_name = "Emma Johnson"
-        self.model_name = model_name
+def make_attack(name, suite, agent, model_name):
+    kind = ATTACKS[name]
+    attack = kind.__new__(kind)
+    FixedJailbreakAttack.__init__(attack, kind._JB_STRING, suite, agent)
+    attack.user_name = "Emma Johnson"
+    attack.model_name = model_name
+    return attack
+
+
+def cost(model, input_tokens, cached_tokens, output_tokens):
+    if model not in PRICES:
+        return None
+    price_in, price_cached, price_out = PRICES[model]
+    uncached = input_tokens - cached_tokens
+    return (uncached * price_in + cached_tokens * price_cached + output_tokens * price_out) / 1_000_000
 
 
 def spoken_name(model):
@@ -74,12 +95,12 @@ def build_agent(llm):
     return AgentPipeline([SystemMessage(load_system_message(None)), InitQuery(), llm, loop])
 
 
-def run_case(suite_name, task_id, injection_id, agent, attack, check, meter=None):
+def run_case(suite_name, task_id, injection_id, agent, attack, check, meter=None, user=None, now=None):
     suite = get_suite(BENCHMARK_VERSION, suite_name)
     task = suite.user_tasks[task_id]
     injection = suite.injection_tasks[injection_id] if injection_id else None
     injections = attack.attack(task, injection) if injection else None
-    session = open_session(suite_name, task_id) if check else None
+    session = open_session(suite_name, task_id, user, now) if check else None
     before = meter.reading() if meter else Counter()
     solved, attacked, messages = run(suite_name, task, agent, injection, session, injections)
     used = (meter.reading() if meter else Counter()) - before
@@ -91,14 +112,16 @@ def run_case(suite_name, task_id, injection_id, agent, attack, check, meter=None
         "solved": bool(solved),
         "attacked": bool(attacked),
         "outcomes": session.outcomes if session else [],
+        "check_ns": session.check_ns if session else [],
         "calls": used["calls"],
         "input_tokens": used["input"],
+        "cached_tokens": used["cached"],
         "output_tokens": used["output"],
         "messages": messages,
     }
 
 
-def summarize(records):
+def summarize(records, model=None):
     columns = {False: Counter(), True: Counter()}
     for record in records:
         column = columns[record["check"]]
@@ -115,12 +138,16 @@ def summarize(records):
         column["operations: refused"] += outcomes["refused"]
         column["LLM calls"] += record["calls"]
         column["input tokens"] += record["input_tokens"]
+        column["  cached"] += record.get("cached_tokens", 0)
         column["output tokens"] += record["output_tokens"]
+    for column in columns.values():
+        spent = cost(model, column["input tokens"], column["  cached"], column["output tokens"])
+        column["cost (USD)"] = "-" if spent is None else f"{spent:.2f}"
     return columns
 
 
-def show(records):
-    columns = summarize(records)
+def show(records, model=None):
+    columns = summarize(records, model)
     print(f"\n{'':<36}{'no check':>14}{'with check':>14}")
     for row in ROWS:
         print(f"{row:<36}{columns[False][row]:>14}{columns[True][row]:>14}")
@@ -136,20 +163,27 @@ def main():
     parser.add_argument("--tasks", type=int, help="only the first N user tasks")
     parser.add_argument("--goals", type=int, help="only the first N attacker goals; 0 runs no attack")
     parser.add_argument("--reasoning-effort", default="none", help="none allows tool calls on chat completions")
+    parser.add_argument("--attack", default="important_instructions", choices=ATTACK_NAMES)
+    parser.add_argument("--run", type=int, default=1, help="number of a repeated run")
     args = parser.parse_args()
 
     load_dotenv(".env")
-    meter = Metered(openai.OpenAI(max_retries=5))
+    client = openai.OpenAI(max_retries=5)
+    try:
+        client.models.retrieve(args.model)
+    except openai.NotFoundError:
+        raise SystemExit(f"{args.model} is not available to this API key.") from None
+    meter = Metered(client)
     agent = build_agent(OpenAILLM(meter, args.model, reasoning_effort=args.reasoning_effort))
     suite = get_suite(BENCHMARK_VERSION, args.suite)
-    attack = Injection(suite, agent, spoken_name(args.model))
+    attack = make_attack(args.attack, suite, agent, spoken_name(args.model))
     task_ids = list(suite.user_tasks)[: args.tasks]
     injection_ids = list(suite.injection_tasks)[: args.goals]
     cases = [(task_id, None) for task_id in task_ids]
     cases += [(task_id, injection_id) for task_id in task_ids for injection_id in injection_ids]
 
     configuration = args.model if args.reasoning_effort == "none" else f"{args.model}-{args.reasoning_effort}"
-    folder = RESULTS / configuration / args.suite
+    folder = RESULTS / configuration / args.attack / f"run{args.run}" / args.suite
     records, failed, in_a_row = [], 0, 0
     for task_id, injection_id in cases:
         for check in (False, True):
@@ -159,6 +193,7 @@ def main():
                 continue
             try:
                 record = run_case(args.suite, task_id, injection_id, agent, attack, check, meter)
+                record.update(model=args.model, attack=args.attack, run=args.run)
             except Exception as error:
                 failed, in_a_row = failed + 1, in_a_row + 1
                 print(f"{task_id} {injection_id or '-'}: {type(error).__name__}: {error}")
@@ -175,7 +210,7 @@ def main():
                 f"{task_id:<14}{injection_id or '-':<18}{'check' if check else 'plain':<7}"
                 f"solved={int(record['solved'])} attacked={int(record['attacked'])} calls={record['calls']}"
             )
-    show(records)
+    show(records, args.model)
     if failed:
         print(f"{failed} cases did not finish; rerun to try them again.")
 

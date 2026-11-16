@@ -80,10 +80,11 @@ def refuse(condition, reason):
 
 
 class Service:
-    def __init__(self, catalog, interpret):
+    def __init__(self, catalog, interpret, verify_user=None):
         self.tools_of = {template["id"]: set(template["tools"]) for template in catalog["templates"]}
         self.always_fresh = set(catalog["always_fresh"])
         self.interpret = interpret
+        self.verify_user = verify_user or self.signed_by_user
         self.user_keys = {}
         self.templates = {}
         self.remaining = {}
@@ -93,9 +94,12 @@ class Service:
     def register_user(self, user, key):
         self.user_keys[user] = key
 
-    def store_template(self, template, signature):
+    def signed_by_user(self, template, signature):
         key = self.user_keys.get(template.user)
-        if key is None or not verify(key, template.message(), signature):
+        return key is not None and verify(key, template.message(), signature)
+
+    def store_template(self, template, signature):
+        if not self.verify_user(template, signature):
             return refuse("C1", "the user's signature on the template is not valid")
         with self.lock:
             if template.template_id in self.templates:

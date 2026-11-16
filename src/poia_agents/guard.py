@@ -1,9 +1,10 @@
-"""A user task under the check: a simulated user, an agent key, and a runtime that asks before it changes state."""
+"""A user task under the check: a user, an agent key, and a runtime that asks before it changes state."""
 
 import json
 import secrets
 from datetime import datetime, timedelta
 from itertools import count
+from time import perf_counter_ns
 
 from agentdojo.functions_runtime import FunctionsRuntime
 
@@ -13,7 +14,6 @@ from poia_agents.effects import effect_of
 
 USER = "user"
 NOW = datetime(2026, 1, 1)
-EXPIRES = (NOW + timedelta(days=1)).isoformat()
 
 
 def plain(arguments):
@@ -29,20 +29,24 @@ def same_text(wanted, given):
 
 
 class Session:
-    def __init__(self, suite_name, task_id, reference_calls, environment):
+    def __init__(self, suite_name, task_id, reference_calls, environment, user=None, now=NOW):
         catalog = load_catalog()
         self.always_fresh = catalog["always_fresh"]
         self.write_tools = WRITE_TOOLS[suite_name]
         self.environment = environment
-        self.user_key = new_key()
+        self.user = user
+        self.now = now
         self.agent_key = new_key()
-        self.service = Service(catalog, lambda tool, arguments: effect_of(tool, arguments, self.environment))
-        self.service.register_user(USER, public_key(self.user_key))
+        self.service = Service(catalog, self.effect, user.verify if user else None)
+        if user is None:
+            self.user_key = new_key()
+            self.service.register_user(USER, public_key(self.user_key))
         writes = [call for call in reference_calls if call.function in self.write_tools]
         self.intended = [(call.function, plain(call.args)) for call in writes]
         self.templates = self.sign_templates(load_labels()[suite_name].get(task_id, []))
         self.numbers = count(1)
         self.outcomes = []
+        self.check_ns = []
 
     def sign_templates(self, labels):
         groups = {}
@@ -66,14 +70,23 @@ class Session:
                 kind=kind,
                 targets=group["targets"],
                 count=group["count"],
-                expires=EXPIRES,
+                expires=(self.now + timedelta(days=1)).isoformat(),
                 limit=group["limit"],
             )
-            decision = self.service.store_template(template, sign(self.user_key, template.message()))
-            if not decision.allowed:
+            decision = self.service.store_template(template, self.signature_on(template))
+            if decision.allowed:
+                templates.append(template)
+            elif self.user is None:
                 raise RuntimeError(decision.reason)
-            templates.append(template)
         return templates
+
+    def effect(self, tool, arguments):
+        return effect_of(tool, arguments, self.environment)
+
+    def signature_on(self, template):
+        if self.user is None:
+            return sign(self.user_key, template.message())
+        return self.user.sign(template)
 
     def view(self, tool, arguments):
         effect = effect_of(tool, arguments, self.environment)
@@ -115,10 +128,19 @@ class Session:
         for template in self.templates:
             if tool in self.service.tools_of[template.kind]:
                 request = Request(template.template_id, str(next(self.numbers)), tool, arguments)
-                if self.service.authorize(request, sign(self.agent_key, request.message()), NOW).allowed:
+                signature = sign(self.agent_key, request.message())
+                started = perf_counter_ns()
+                allowed = self.service.authorize(request, signature, self.now).allowed
+                self.check_ns.append(perf_counter_ns() - started)
+                if allowed:
                     self.intends(tool, arguments)
                     return "template"
-        return "fresh" if self.intends(tool, arguments) else "refused"
+        return "fresh" if self.approves(tool, arguments) else "refused"
+
+    def approves(self, tool, arguments):
+        if self.user is None:
+            return self.intends(tool, arguments)
+        return self.user.approves(tool, arguments, effect_of(tool, arguments, self.environment))
 
 
 class GuardedRuntime(FunctionsRuntime):

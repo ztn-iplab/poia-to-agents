@@ -3,6 +3,13 @@
 from poia_agents.check import Effect
 
 
+def site(url):
+    url = url.strip().lower()
+    for scheme in ("https://", "http://"):
+        url = url.removeprefix(scheme)
+    return url.rstrip("/")
+
+
 def filename(environment, file_id):
     file = environment.cloud_drive.files.get(file_id)
     return file.filename if file else file_id
@@ -40,7 +47,7 @@ def effect_of(tool, arguments, environment):
         case "add_user_to_channel":
             return Effect({"member": [a["user"]], "channel": [a["channel"]]})
         case "post_webpage":
-            return Effect({"site": [a["url"]]})
+            return Effect({"site": [site(a["url"])]})
         case "reserve_hotel":
             return Effect({"vendor": [a["hotel"]], "dates": [f"{a['start_day']}/{a['end_day']}"]})
         case "reserve_restaurant":
